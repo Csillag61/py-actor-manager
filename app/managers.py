@@ -22,13 +22,19 @@ class ActorManager:
         self.cursor.execute(query)
         self.connection.commit()
 
-    def create(self, first_name: str, last_name: str) -> None:
+    def create(self, first_name: str, last_name: str) -> Actor:
         self.cursor.execute(
             f"INSERT INTO {self.table_name} (first_name, last_name) "
             f"VALUES (?, ?)",
             (first_name, last_name)
         )
         self.connection.commit()
+
+        # Get the ID of the newly created actor
+        actor_id = self.cursor.lastrowid
+        if actor_id is None:
+            raise RuntimeError("Failed to get ID of newly created actor")
+        return Actor(id=actor_id, first_name=first_name, last_name=last_name)
 
     def all(self) -> list[Actor]:
         self.cursor.execute(f"SELECT * FROM {self.table_name}")
